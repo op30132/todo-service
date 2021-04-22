@@ -1,8 +1,0 @@
-export enum SysCode {
-  SUCCESS = '200',
-  SEARCH_ERROR = 'V001',
-  FORMAT_WRONG = 'V002',
-  BAD_REQUEST = 'V400',
-  PATH_NOT_FOUND = 'V404',
-  UNKNOWN_ERROR = 'V999'
-}

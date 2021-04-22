@@ -1,10 +1,10 @@
 
 export class SysResponseMsg {
 
-  code: string;
+  code: Number;
   message: string;
 
-  constructor(code: string, message = 'success') {
+  constructor(code: Number, message = 'success') {
     this.code = code;
     this.message = message;
   }
