@@ -1,11 +1,12 @@
 
 export interface LoginDTO {
-  account: string;
+  email: string;
   password: string;
 }
 
 export interface RegisterDTO {
-  account: string;
+  email: string;
   username: string;
-  password: string;
+  googleId?: string;
+  password?: string;
 }

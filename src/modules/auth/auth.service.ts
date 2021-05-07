@@ -1,10 +1,14 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { sign } from 'jsonwebtoken';
 import { LoginDTO } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { UserService } from '../user/user.service';
+import { SysResponseMsg } from 'src/shared/sys-response-msg';
+import { UserDocument } from '../user/schemas/user.schema';
 
+export enum Provider {
+  GOOGLE = 'google',
+}
 @Injectable()
 export class AuthService {
   constructor(
@@ -12,20 +16,31 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) { }
 
-  async validateUser(account: string, pass: string) {
-    const res = await this.userService.findOne({ account });
+  async validateUser(email: string, pass: string) {
+    const res = await this.userService.findOne({ email });
 
     if (res && bcrypt.compare(pass, res.password)) {
-      return { _id: res._id };
+      return res;
     }
     return null;
   }
 
-  async login(userDTO: LoginDTO) {
-    const res = await this.validateUser(userDTO.account, userDTO.password);
+  async login(user: UserDocument) {
     return {
-      token: this.jwtService.sign(res)
+      token: this.jwtService.sign({ id: user._id })
     };
   }
+  async signInWithGoogle(data) {
+    if (!data.user) throw new BadRequestException();
+    let user = await this.userService.findOne({ googleId: data.user.googleId });
+    if (user) return this.login(user);
 
+    const newUser = {
+      username: data.user.username,
+      email: data.user.email,
+      googleId: data.user.googleId
+    }
+    const insertedUser = await this.userService.create(newUser);
+    return this.login(insertedUser);
+  }
 }

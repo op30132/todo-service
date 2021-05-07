@@ -1,33 +1,35 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { LoginDTO, RegisterDTO } from '../auth/dto/auth.dto';
-import { User } from './interfaces/user.interface';
+import { RegisterDTO } from '../auth/dto/auth.dto';
+import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel('User') private userModel: Model<User>) { }
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
 
-  async findOne(query): Promise<User | undefined> {
+  async findOne(query): Promise<UserDocument> {
     const res = await this.userModel.findOne(query);
-    if (!res) {
-      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-    }
-    return res;
+    return res || null;
   }
 
-  async create(userDTO: RegisterDTO) {
-    const { account } = userDTO;
-    const user = await this.userModel.findOne({ account });
+  async findByQuery(query): Promise<UserDocument[]> {
+    const res = await this.userModel.find(query);
+    return res || [];
+  }
+
+  async create(userDTO: RegisterDTO): Promise<UserDocument> {
+    const { email } = userDTO;
+    const user = await this.userModel.findOne({ email });
     if (user) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
     const createdUser = new this.userModel(userDTO);
     await createdUser.save();
-    return createdUser;
+    return JSON.parse(JSON.stringify(createdUser));
   }
 
-  async findAll() {
+  async findAll(): Promise<UserDocument[]> {
     return await this.userModel.find();
   }
 }

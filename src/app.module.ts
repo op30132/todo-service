@@ -4,6 +4,9 @@ import { TodoModule } from './modules/todo/todo.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import appConfig from './config/app.config';
 import { AuthModule } from './modules/auth/auth.module';
+import { ProjectModule } from './modules/project/project.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -16,13 +19,21 @@ import { AuthModule } from './modules/auth/auth.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('uri'),
+        useNewUrlParser: true,
+        useFindAndModify: false
       }),
       inject: [ConfigService],
     }),
+    AuthModule,
     TodoModule,
-    AuthModule
+    ProjectModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    }
+  ]
 })
 export class AppModule { }
