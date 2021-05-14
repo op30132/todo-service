@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { UserService } from '../user/user.service';
 import { SysResponseMsg } from 'src/shared/sys-response-msg';
 import { UserDocument } from '../user/schemas/user.schema';
+import { JwtPayload, TokenService } from './token/token/token.service';
 
 export enum Provider {
   GOOGLE = 'google',
@@ -13,7 +14,8 @@ export enum Provider {
 export class AuthService {
   constructor(
     private userService: UserService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private tokenService: TokenService
   ) { }
 
   async validateUser(email: string, pass: string) {
@@ -25,22 +27,40 @@ export class AuthService {
     return null;
   }
 
-  async login(user: UserDocument) {
-    return {
-      token: this.jwtService.sign({ id: user._id })
+  async login(user: UserDocument, ipAddress: string) {
+    const payload: JwtPayload = {
+      sub: user._id,
     };
+
+    const loginResponse = await this.tokenService.createAccessToken(payload);
+    const tokenContent = {
+      userId: user._id,
+      ipAddress,
+    };
+    const refresh = await this.tokenService.createRefreshToken(tokenContent);
+
+    loginResponse['refreshToken'] = refresh;
+
+    return loginResponse;
   }
-  async signInWithGoogle(data) {
-    if (!data.user) throw new BadRequestException();
-    let user = await this.userService.findOne({ googleId: data.user.googleId });
-    if (user) return this.login(user);
+  async signInWithGoogle(user: UserDocument, ipAddress: string) {
+    if (!user) throw new BadRequestException();
+    let res = await this.userService.findOne({ googleId: user.googleId });
+    if (res) return this.login(res, ipAddress);
 
     const newUser = {
-      username: data.user.username,
-      email: data.user.email,
-      googleId: data.user.googleId
+      username: user.username,
+      email: user.email,
+      googleId: user.googleId
     }
     const insertedUser = await this.userService.create(newUser);
-    return this.login(insertedUser);
+    return this.login(insertedUser, ipAddress);
+  }
+
+  async logout(userId: string, refreshToken: string): Promise<any> {
+    await this.tokenService.deleteRefreshToken(userId, refreshToken);
+  }
+  async logoutFromAll(userId: string): Promise<any> {
+    await this.tokenService.deleteRefreshTokenForUser(userId);
   }
 }

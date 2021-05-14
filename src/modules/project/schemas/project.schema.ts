@@ -11,10 +11,10 @@ export class Project {
   name: string;
 
   @Prop({ type: Types.ObjectId, ref: User.name })
-  owner: String;
+  owner: Types.ObjectId;
 
   @Prop({ type: [Types.ObjectId], ref: User.name })
-  coworker: String[];
+  coworker: Types.ObjectId[];
 
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;

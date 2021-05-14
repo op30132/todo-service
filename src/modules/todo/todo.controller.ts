@@ -1,4 +1,4 @@
-import { Bind, HttpException, HttpStatus } from '@nestjs/common';
+import { Bind, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import {
   Body,
   Controller,
@@ -9,23 +9,22 @@ import {
   Post,
   Put,
   UseFilters,
-  UsePipes,
-  ValidationPipe
 } from '@nestjs/common';
 import { User } from 'src/decorators/user.decorator';
 import { GlobalExceptionFilter } from 'src/filters/global-exception.filter';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserDocument } from '../user/schemas/user.schema';
 import { TodoDTO } from './dto/todo.dto';
 import { TodoService } from './todo.service';
 
 
 @Controller('api/todo')
+@UseGuards(JwtAuthGuard)
 @UseFilters(GlobalExceptionFilter)
 export class TodoController {
   constructor(private todoService: TodoService) { }
 
   @Post('/create')
-  @UsePipes(ValidationPipe)
   async addTodo(@Body() createDTO: TodoDTO, @User() { id }: UserDocument) {
     const res = await this.todoService.addTodo(id, createDTO);
     return res;
@@ -49,7 +48,6 @@ export class TodoController {
   }
 
   @Put('/:todoId')
-  @UsePipes(ValidationPipe)
   async updateTodo(@Param('todoId') todoId, @Body() createDTO: TodoDTO) {
     const res = await this.todoService.updateTodo(todoId, createDTO);
     if (!res) throw new NotFoundException(`EntryId ${todoId} does not exist!`);

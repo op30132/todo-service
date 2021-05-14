@@ -1,15 +1,14 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, ParseUUIDPipe, Post, Put, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
-import { Roles } from 'src/decorators/roles.decorator';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, UseFilters, UseGuards } from '@nestjs/common';
 import { User } from 'src/decorators/user.decorator';
-import { Role } from 'src/enum/role.enum';
+import { GlobalExceptionFilter } from 'src/filters/global-exception.filter';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserDocument } from '../user/schemas/user.schema';
 import { CoworkerDTO, ProjectDTO } from './dto/Project.dto';
 import { ProjectService } from './project.service';
 
 @Controller('api/project')
-@UseGuards()
-@UsePipes(ValidationPipe)
-// @UseFilters(GlobalExceptionFilter)
+@UseFilters(GlobalExceptionFilter)
+@UseGuards(JwtAuthGuard)
 export class ProjectController {
   constructor(
     private projectService: ProjectService
@@ -34,7 +33,6 @@ export class ProjectController {
   }
 
   @Put('/:projectId')
-  @UsePipes(ValidationPipe)
   async update(@Param('projectId') projectId, @Body() createDTO: ProjectDTO) {
     const res = await this.projectService.updateProject(projectId, createDTO);
     if (!res) throw new NotFoundException(`EntryId ${projectId} does not exist!`);

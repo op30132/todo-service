@@ -1,5 +1,5 @@
 import winston = require('winston');
-import * as DailyRotateFile from "winston-daily-rotate-file";
+import DailyRotateFile from "winston-daily-rotate-file";
 import { DateUtils } from './date-utils';
 
 export class Logger {

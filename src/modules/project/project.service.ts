@@ -53,13 +53,13 @@ export class ProjectService {
       throw new NotFoundException(`EntryId ${userId} does not exist!`);
     }
     await project.updateOne(
-      { $push: { coworker: userId } }, { upsert: true, new: true }
+      { $push: { coworker: Types.ObjectId(userId) } }, { upsert: true, new: true }
     );
     return project;
   }
   async removeCoworker(ProjectId: string, userId: string) {
     const project = await this.getProjectById(ProjectId);
-    if (!project.coworker.includes(userId)) {
+    if (!project.coworker.includes(Types.ObjectId(userId))) {
       throw new NotFoundException(`${userId} does not exist in coworker!`);
     }
     await project.updateOne(

@@ -1,6 +1,10 @@
+import { IsNotEmpty } from "class-validator";
 
-export interface LoginDTO {
+export class LoginDTO {
+  @IsNotEmpty()
   email: string;
+
+  @IsNotEmpty()
   password: string;
 }
 
