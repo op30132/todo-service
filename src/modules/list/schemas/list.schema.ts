@@ -1,27 +1,18 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
+import { Project } from 'src/modules/project/schemas/project.schema';
 import { User } from 'src/modules/user/schemas/user.schema';
 import { Document } from 'mongoose';
-import { List } from 'src/modules/list/schemas/list.schema';
 
-export type TodoDocument = Todo & Document;
+export type ListDocument = List & Document;
 
 @Schema()
-export class Todo {
+export class List {
   @Prop()
   title: string;
 
-  @Prop()
-  content: String;
-
-  @Prop()
-  dueDate: Date;
-
-  @Prop()
-  important: Boolean;
-
-  @Prop({ type: Types.ObjectId, ref: List.name })
-  list: String;
+  @Prop({ type: Types.ObjectId, ref: Project.name })
+  project: String;
 
   @Prop({ type: Types.ObjectId, ref: User.name })
   creator: String;
@@ -30,4 +21,4 @@ export class Todo {
   createdAt: Date;
 }
 
-export const TodoSchema = SchemaFactory.createForClass(Todo);
+export const ListSchema = SchemaFactory.createForClass(List);

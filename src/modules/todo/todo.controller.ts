@@ -30,13 +30,12 @@ export class TodoController {
     return res;
   }
 
-  @Get('/list/:projectId')
-  async getTodoList(@Param('projectId') projectId: string) {
-    console.log("projectId", projectId)
-    if (!projectId) {
-      throw new HttpException('no projectId', HttpStatus.BAD_REQUEST);;
+  @Get('/all/:listId')
+  async getTodoList(@Param('listId') listId: string) {
+    if (!listId) {
+      throw new HttpException('no such listId', HttpStatus.BAD_REQUEST);;
     }
-    const res = await this.todoService.getAllTodoByProject(projectId);
+    const res = await this.todoService.getAllTodoByList(listId);
     return res;
   }
 

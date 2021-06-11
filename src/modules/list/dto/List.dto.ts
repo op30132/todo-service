@@ -1,16 +1,9 @@
 import { IsNotEmpty } from 'class-validator';
 
-export class TodoDTO {
+export class ListDTO {
   @IsNotEmpty({ message: '標題不可為空值' })
   title: string;
 
-  @IsNotEmpty({ message: '內容不可為空值' })
-  content: string;
-
   @IsNotEmpty({ message: 'projectId 不可為空值' })
-  listId: string;
-
-  dueDate: Date;
-
-  important: Boolean;
+  projectId: string;
 }

@@ -23,7 +23,7 @@ export class ProjectService {
     return res;
   }
   async addProject(userId: string, Project: ProjectDTO) {
-    const createProject = await this.ProjectModel.create({ ...Project, owner: userId });
+    const createProject = await this.ProjectModel.create({ ...Project, owner: new Types.ObjectId(userId) });
     createProject.save();
     return createProject;
   }
@@ -33,11 +33,14 @@ export class ProjectService {
   async deleteProject(ProjectId: string): Promise<any> {
     return await this.ProjectModel.findByIdAndRemove(ProjectId);
   }
-  async getAllProjectByUser(userId: string) {
-    const project = await this.ProjectModel.find({ owner: userId });
+  async getProjectsByUser(userId: string) {
+    const project = await this.ProjectModel.find({ owner: Types.ObjectId(userId) }).exec();
     return project || [];
   }
-
+  async getCoworkProjectsByUser(userId: string) {
+    const project = await this.ProjectModel.find({ coworker: Types.ObjectId(userId)});
+    return project || [];
+  }
   async getCoworkerList(ProjectId: string) {
     const project = await this.getProjectById(ProjectId);
     const res = await project.populate({
@@ -48,7 +51,7 @@ export class ProjectService {
   }
   async addCoworker(ProjectId: string, userId: string) {
     const project = await this.getProjectById(ProjectId);
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.findOne(Types.ObjectId(userId));
     if (!user) {
       throw new NotFoundException(`EntryId ${userId} does not exist!`);
     }

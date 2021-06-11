@@ -2,25 +2,25 @@ import { Model } from 'mongoose';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { TodoDTO } from './dto/todo.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { ProjectService } from '../project/project.service';
 import { Todo, TodoDocument } from './schemas/todo.schema';
+import { ListService } from '../list/list.service';
 
 @Injectable()
 export class TodoService {
   constructor(
     @InjectModel(Todo.name) private todoModel: Model<TodoDocument>,
-    private projectService: ProjectService
+    private listService: ListService
   ) { }
 
   async getTodoById(todoId: string) {
     return await this.todoModel.findById(todoId).exec();
   }
   async addTodo(userId: string, todo: TodoDTO) {
-    const project = await this.projectService.getProjectById(todo.projectId);
+    const project = await this.listService.getListById(todo.listId);
     if (!project) {
       throw new HttpException('No such project', HttpStatus.BAD_REQUEST);
     }
-    const createTodo = await this.todoModel.create({ ...todo, creator: userId, project: todo.projectId });
+    const createTodo = await this.todoModel.create({ ...todo, creator: userId, list: todo.listId });
     return createTodo.save();
   }
   async updateTodo(todoId: string, todo: TodoDTO) {
@@ -29,8 +29,8 @@ export class TodoService {
   async deleteTodo(todoId: string): Promise<any> {
     return await this.todoModel.findByIdAndRemove(todoId);
   }
-  async getAllTodoByProject(projectId: string) {
-    const res = await this.todoModel.find({ project: projectId });
+  async getAllTodoByList(listId: string) {
+    const res = await this.todoModel.find({ list: listId });
     return res || [];
   }
 }

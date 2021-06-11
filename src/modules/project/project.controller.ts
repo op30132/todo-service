@@ -20,9 +20,14 @@ export class ProjectController {
     return res;
   }
 
-  @Get('/list')
+  @Get('/myProjects')
   async findAllByUserId(@User() user: UserDocument) {
-    const res = await this.projectService.getAllProjectByUser(user.id);
+    const res = await this.projectService.getProjectsByUser(user.id);
+    return res;
+  }
+  @Get('/coworkerProjects')
+  async findcoworkByUserId(@User() user: UserDocument) {
+    const res = await this.projectService.getCoworkProjectsByUser(user.id);
     return res;
   }
 
@@ -46,7 +51,7 @@ export class ProjectController {
     return res;
   }
 
-  @Get('/:projectId/coworker')
+  @Get('/:projectId/coworkers')
   async getCoworkerList(@Param('projectId') projectId) {
     const res = await this.projectService.getCoworkerList(projectId);
     return res;
