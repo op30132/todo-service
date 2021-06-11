@@ -9,7 +9,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { Response, Request } from 'express';
 import { GlobalExceptionFilter } from 'src/filters/global-exception.filter';
-import { TokenService } from './token/token/token.service';
+import { TokenService } from './token/token.service';
 import { ExtractJwt } from 'passport-jwt';
 
 @Controller('api/auth')

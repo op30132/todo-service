@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { OpUnitType } from 'dayjs';
 import { Model, Types } from 'mongoose';
-import { Token, TokenDocument } from '../../schemas/token.schema';
+import { Token, TokenDocument } from '../schemas/token.schema';
 import { randomBytes } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { SysResponseMsg } from 'src/shared/sys-response-msg';

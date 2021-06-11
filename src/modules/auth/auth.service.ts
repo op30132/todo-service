@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { UserService } from '../user/user.service';
 import { SysResponseMsg } from 'src/shared/sys-response-msg';
 import { UserDocument } from '../user/schemas/user.schema';
-import { JwtPayload, TokenService } from './token/token/token.service';
+import { JwtPayload, TokenService } from './token/token.service';
 
 export enum Provider {
   GOOGLE = 'google',

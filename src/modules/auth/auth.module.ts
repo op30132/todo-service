@@ -10,7 +10,7 @@ import { Token, TokenSchema } from './schemas/token.schema';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
-import { TokenService } from './token/token/token.service';
+import { TokenService } from './token/token.service';
 
 @Module({
   imports: [
