@@ -3,12 +3,10 @@ import { LoginDTO, RegisterDTO } from './dto/auth.dto';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 import { Public } from 'src/decorators/auth.decorator';
-import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/decorators/user.decorator';
 import { UserDocument } from '../user/schemas/user.schema';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
-import { SysResponseMsg } from 'src/shared/sys-response-msg';
 import { Response, Request } from 'express';
 import { GlobalExceptionFilter } from 'src/filters/global-exception.filter';
 import { TokenService } from './token/token/token.service';
@@ -28,9 +26,6 @@ export class AuthController {
   @Post('login')
   async login(@User() user: UserDocument, @Ip() userIp: string) {
     const res = this.authService.login(user, userIp);
-    if (!res) {
-      throw new UnauthorizedException('email or password was wrong',);
-    }
     return res;
   }
 
@@ -54,7 +49,7 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@User() user: UserDocument, @Ip() userIp: string, @Res({ passthrough: true }) res: Response) {
     const loginResult = await this.authService.signInWithGoogle(user, userIp);
-    return loginResult;
+    res.redirect("http://localhost:3000/login?token=" + loginResult.accessToken);
   }
 
   @Public()

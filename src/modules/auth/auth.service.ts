@@ -20,11 +20,13 @@ export class AuthService {
 
   async validateUser(email: string, pass: string) {
     const res = await this.userService.findOne({ email });
-
-    if (res && bcrypt.compare(pass, res.password)) {
-      return res;
+    if (res && res.googleId) {
+      return {isGoogle: true, isValid: false};
     }
-    return null;
+    if (res && await bcrypt.compare(pass, res.password)) {
+      return {isGoogle: false, isValid: true, user: res};
+    }
+    return {isGoogle: false, isValid: false};
   }
 
   async login(user: UserDocument, ipAddress: string) {

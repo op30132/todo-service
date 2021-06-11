@@ -20,7 +20,8 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('uri'),
         useNewUrlParser: true,
-        useFindAndModify: false
+        useFindAndModify: false,
+        useCreateIndex: true
       }),
       inject: [ConfigService],
     }),

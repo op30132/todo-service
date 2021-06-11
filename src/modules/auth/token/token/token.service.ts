@@ -19,8 +19,8 @@ export class TokenService {
     private readonly jwtService: JwtService,
     private configService: ConfigService
   ) {
-    this.refreshTokenExpiresIn = this.configService.get<string>('JWT_EXPIRE');
-    this.accessTokenExpiresIn = this.configService.get<string>('REFRESH_EXPIRE');
+    this.refreshTokenExpiresIn = this.configService.get<string>('jwt_expire');
+    this.accessTokenExpiresIn = this.configService.get<string>('refresh_expire');
   }
 
   async findOne(query): Promise<TokenDocument> {
