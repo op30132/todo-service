@@ -1,9 +1,6 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { LoginDTO } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { UserService } from '../user/user.service';
-import { SysResponseMsg } from 'src/shared/sys-response-msg';
 import { UserDocument } from '../user/schemas/user.schema';
 import { JwtPayload, TokenService } from './token/token.service';
 
@@ -14,7 +11,6 @@ export enum Provider {
 export class AuthService {
   constructor(
     private userService: UserService,
-    private readonly jwtService: JwtService,
     private tokenService: TokenService
   ) { }
 
@@ -40,10 +36,7 @@ export class AuthService {
       ipAddress,
     };
     const refresh = await this.tokenService.createRefreshToken(tokenContent);
-
-    loginResponse['refreshToken'] = refresh;
-
-    return loginResponse;
+    return {refreshToken: refresh, token: loginResponse};
   }
   async signInWithGoogle(user: UserDocument, ipAddress: string) {
     if (!user) throw new BadRequestException();

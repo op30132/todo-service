@@ -7,7 +7,7 @@ export class TodoDTO {
   @IsNotEmpty({ message: '內容不可為空值' })
   content: string;
 
-  @IsNotEmpty({ message: 'projectId 不可為空值' })
+  @IsNotEmpty({ message: 'listId 不可為空值' })
   listId: string;
 
   dueDate: Date;

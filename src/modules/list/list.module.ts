@@ -14,5 +14,6 @@ import { ListService } from './list.service';
   ],
   controllers: [ListController],
   providers: [ListService],
+  exports: [ListService]
 })
 export class ListModule { }

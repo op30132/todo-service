@@ -24,14 +24,17 @@ export class AuthController {
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@User() user: UserDocument, @Ip() userIp: string) {
-    const res = this.authService.login(user, userIp);
-    return res;
+  async login(@User() user: UserDocument, @Ip() userIp: string, @Res({ passthrough: true }) res: Response) {
+    const result = await this.authService.login(user, userIp);
+    res.cookie('refreshToken', result.refreshToken,{ httpOnly: true });
+    return result.token;
   }
 
   @Get('access_token')
-  async token(@Req() req: Request, @Ip() userIp, @Query('refresh_token') refreshToken?: string) {
+  async token(@Req() req: Request, @Ip() userIp) {
     try {
+      const refreshToken = req.cookies['refreshToken'];
+      if(!refreshToken) return new InternalServerErrorException('no refreshToken');
       const oldAccessToken = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
       return await this.tokenService.getAccessTokenFromRefreshToken(refreshToken, oldAccessToken, userIp);
     } catch (error) {
@@ -48,8 +51,9 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@User() user: UserDocument, @Ip() userIp: string, @Res({ passthrough: true }) res: Response) {
-    const loginResult = await this.authService.signInWithGoogle(user, userIp);
-    res.redirect("http://localhost:3000/login?token=" + loginResult.accessToken);
+    const result = await this.authService.signInWithGoogle(user, userIp);
+    res.cookie('refreshToken', result.refreshToken,{ httpOnly: true });
+    res.redirect("http://localhost:3000/login?token=" + result.token.accessToken);
   }
 
   @Public()
