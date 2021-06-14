@@ -29,7 +29,6 @@ export class AuthService {
     const payload: JwtPayload = {
       sub: user._id,
     };
-
     const loginResponse = await this.tokenService.createAccessToken(payload);
     const tokenContent = {
       userId: user._id,

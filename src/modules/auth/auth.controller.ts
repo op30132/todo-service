@@ -26,17 +26,19 @@ export class AuthController {
   @Post('login')
   async login(@User() user: UserDocument, @Ip() userIp: string, @Res({ passthrough: true }) res: Response) {
     const result = await this.authService.login(user, userIp);
-    res.cookie('refreshToken', result.refreshToken,{ httpOnly: true });
+    this.setRefreshTokenCookie(res, result.refreshToken);
     return result.token;
   }
 
   @Get('access_token')
-  async token(@Req() req: Request, @Ip() userIp) {
+  async token(@Req() req: Request, @Ip() userIp, @Res({ passthrough: true }) res: Response) {
     try {
       const refreshToken = req.cookies['refreshToken'];
       if(!refreshToken) return new InternalServerErrorException('no refreshToken');
       const oldAccessToken = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
-      return await this.tokenService.getAccessTokenFromRefreshToken(refreshToken, oldAccessToken, userIp);
+      const result = await this.tokenService.getAccessTokenFromRefreshToken(refreshToken, oldAccessToken, userIp);
+      this.setRefreshTokenCookie(res, result.refreshToken);
+      return result.token;
     } catch (error) {
       throw new InternalServerErrorException('invalid');
     }
@@ -52,7 +54,7 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@User() user: UserDocument, @Ip() userIp: string, @Res({ passthrough: true }) res: Response) {
     const result = await this.authService.signInWithGoogle(user, userIp);
-    res.cookie('refreshToken', result.refreshToken,{ httpOnly: true });
+    this.setRefreshTokenCookie(res, result.refreshToken);
     res.redirect("http://localhost:3000/login?token=" + result.token.accessToken);
   }
 
@@ -82,4 +84,7 @@ export class AuthController {
     return { message: 'ok' };
   }
 
+  setRefreshTokenCookie(response: Response, value: String){
+    response.cookie('refreshToken', value,{ httpOnly: true, path: '/api/auth/access_token'});
+  }
 }

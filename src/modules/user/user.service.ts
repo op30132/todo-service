@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RegisterDTO } from '../auth/dto/auth.dto';
@@ -14,7 +14,7 @@ export class UserService {
   }
 
   async findOne(query): Promise<UserDocument> {
-    const res = await this.userModel.findOne(query);
+    const res = await this.userModel.findOne(query).select('+password');
     return res || null;
   }
 
@@ -27,14 +27,13 @@ export class UserService {
     const { email } = userDTO;
     const user = await this.userModel.findOne({ email });
     if (user) {
-      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('User already exists');
     }
-    const createdUser = new this.userModel(userDTO);
-    await createdUser.save();
-    return JSON.parse(JSON.stringify(createdUser));
+    return this.userModel.create(userDTO);
   }
 
   async findAll(): Promise<UserDocument[]> {
     return await this.userModel.find();
   }
+
 }

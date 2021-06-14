@@ -44,12 +44,12 @@ export class TokenService {
       const accessToken = await this.createAccessToken(payload);
       await this.tokenModel.findOneAndDelete(token.id).exec();
 
-      accessToken['refreshToken'] = await this.createRefreshToken({
+      const refresh = await this.createRefreshToken({
         userId: oldPayload.sub,
         ipAddress,
       });
 
-      return accessToken;
+      return {token: accessToken, refreshToken: refresh};
     } catch (error) {
       throw error;
     }
