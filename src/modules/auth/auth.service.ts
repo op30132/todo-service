@@ -30,11 +30,7 @@ export class AuthService {
       sub: user._id,
     };
     const loginResponse = await this.tokenService.createAccessToken(payload);
-    const tokenContent = {
-      userId: user._id,
-      ipAddress,
-    };
-    const refresh = await this.tokenService.createRefreshToken(tokenContent);
+    const refresh = await this.tokenService.createRefreshToken(user._id, ipAddress);
     return {refreshToken: refresh, token: loginResponse};
   }
   async signInWithGoogle(user: UserDocument, ipAddress: string) {

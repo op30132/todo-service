@@ -38,7 +38,7 @@ export class ProjectService {
     return project || [];
   }
   async getCoworkProjectsByUser(userId: string) {
-    const project = await this.ProjectModel.find({ coworker: Types.ObjectId(userId)});
+    const project = await this.ProjectModel.find({ coworker: Types.ObjectId(userId)}).exec();
     return project || [];
   }
   async getCoworkerList(ProjectId: string) {

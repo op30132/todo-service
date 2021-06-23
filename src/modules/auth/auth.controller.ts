@@ -11,10 +11,12 @@ import { Response, Request } from 'express';
 import { GlobalExceptionFilter } from 'src/filters/global-exception.filter';
 import { TokenService } from './token/token.service';
 import { ExtractJwt } from 'passport-jwt';
+import { of } from 'rxjs';
 
 @Controller('api/auth')
 @UseFilters(GlobalExceptionFilter)
 export class AuthController {
+  REFRESH_TOKEN_KEY = "refreshToken";
   constructor(
     private authService: AuthService,
     private userService: UserService,
@@ -29,15 +31,13 @@ export class AuthController {
     this.setRefreshTokenCookie(res, result.refreshToken);
     return result.token;
   }
-
-  @Get('access_token')
-  async token(@Req() req: Request, @Ip() userIp, @Res({ passthrough: true }) res: Response) {
+  @Public()
+  @Get('token/refresh')
+  async token(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     try {
-      const refreshToken = req.cookies['refreshToken'];
-      if(!refreshToken) return new InternalServerErrorException('no refreshToken');
-      const oldAccessToken = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
-      const result = await this.tokenService.getAccessTokenFromRefreshToken(refreshToken, oldAccessToken, userIp);
-      this.setRefreshTokenCookie(res, result.refreshToken);
+      const refreshToken = req.cookies[this.REFRESH_TOKEN_KEY];
+      if(!refreshToken) return new UnauthorizedException('no refreshToken');
+      const result = await this.tokenService.getAccessTokenFromRefreshToken(refreshToken);
       return result.token;
     } catch (error) {
       throw new InternalServerErrorException('invalid');
@@ -55,7 +55,7 @@ export class AuthController {
   async googleAuthRedirect(@User() user: UserDocument, @Ip() userIp: string, @Res({ passthrough: true }) res: Response) {
     const result = await this.authService.signInWithGoogle(user, userIp);
     this.setRefreshTokenCookie(res, result.refreshToken);
-    res.redirect("http://localhost:3000/login?token=" + result.token.accessToken);
+    res.redirect("http://localhost:3000/home");
   }
 
   @Public()
@@ -71,11 +71,12 @@ export class AuthController {
     return await this.userService.findAll();
   }
 
-  @Delete('logout')
-  async logout(@User() user: UserDocument, @Query('refresh_token') refreshToken?: string, @Query('from_all') fromAll: boolean = false): Promise<any> {
+  @Delete('token/logout')
+  async logout(@User() user: UserDocument, @Req() req: Request, @Query('from_all') fromAll: boolean = false): Promise<any> {
     if (fromAll) {
       await this.authService.logoutFromAll(user.id);
     } else {
+      const refreshToken = req.cookies[this.REFRESH_TOKEN_KEY];
       if (!refreshToken) {
         throw new BadRequestException('No refresh token provided');
       }
@@ -85,6 +86,7 @@ export class AuthController {
   }
 
   setRefreshTokenCookie(response: Response, value: String){
-    response.cookie('refreshToken', value,{ httpOnly: true, path: '/api/auth/access_token'});
+    const maxAge = this.tokenService.getMaxage();
+    response.cookie(this.REFRESH_TOKEN_KEY, value,{ httpOnly: true, path: '/api/auth/token', maxAge});
   }
 }

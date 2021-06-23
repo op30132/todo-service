@@ -21,7 +21,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
 
     res.status(error.getStatus()).json({
-      statusCode: error.getStatus(),
+      status: error.getStatus(),
       error: error.response.name || error.response.error || error.name,
       message: error.response.message || error.response || error.message,
       timestamp: new Date().toISOString(),

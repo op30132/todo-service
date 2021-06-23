@@ -32,7 +32,6 @@ export class ListController {
 
   @Get('/all/:projectId')
   async getTodoList(@Param('projectId') projectId: string) {
-    console.log("projectId", projectId)
     if (!projectId) {
       throw new HttpException('no projectId', HttpStatus.BAD_REQUEST);;
     }

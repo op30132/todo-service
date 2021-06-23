@@ -12,9 +12,13 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(email: string, password: string) {
-    const res = await this.authService.validateUser(email, password);
-    if (res.isValid) return res.user;
-    if (res.isGoogle) throw new UnauthorizedException('login with google');
-    throw new UnauthorizedException();
+    try {
+      const res = await this.authService.validateUser(email, password);
+      if (res.isValid) return res.user;
+      if (res.isGoogle) throw new UnauthorizedException("you seem to login with google");
+      throw new UnauthorizedException("Incorrect account or password");
+    } catch(err) {
+      throw new UnauthorizedException(err);
+    }
   }
 }

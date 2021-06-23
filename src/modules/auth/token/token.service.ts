@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { OpUnitType } from 'dayjs';
@@ -10,7 +10,7 @@ import { SysResponseMsg } from 'src/shared/sys-response-msg';
 @Injectable()
 export class TokenService {
   // TODO: redis cache
-  private readonly usersExpired: number[] = [];
+  private readonly usersExpiredList: number[] = [];
   private refreshTokenExpiresIn: string;
   private accessTokenExpiresIn: string;
 
@@ -27,29 +27,23 @@ export class TokenService {
     const res = await this.tokenModel.findOne(query);
     return res || null;
   }
-
-  async getAccessTokenFromRefreshToken(refreshToken: string, oldAccessToken: string, ipAddress: string) {
+  async getAccessTokenFromRefreshToken(refreshToken: string) {
     try {
       const token = await this.findOne({ value: refreshToken });
       if (!token) {
-        throw new HttpException('Refresh token not found', 404);
+        throw new BadRequestException('Refresh token not found');
       }
       if (token.expiresAt < new Date()) {
-        throw new Error('Refresh token expired');
+        throw new UnauthorizedException('Refresh token expired');
       }
-      const oldPayload = await this.validateToken(oldAccessToken, true);
-      const payload = {
-        sub: oldPayload.sub,
+      // const oldPayload = await this.validateToken(oldAccessToken, true);
+      const payload: JwtPayload = {
+        sub: token.userId.toString()
       };
       const accessToken = await this.createAccessToken(payload);
-      await this.tokenModel.findOneAndDelete(token.id).exec();
-
-      const refresh = await this.createRefreshToken({
-        userId: oldPayload.sub,
-        ipAddress,
-      });
-
-      return {token: accessToken, refreshToken: refresh};
+      // await this.tokenModel.findOneAndDelete(token.id).exec();
+      // const refresh = await this.createRefreshToken(payload.sub, ipAddress);
+      return {token: accessToken};
     } catch (error) {
       throw error;
     }
@@ -58,12 +52,10 @@ export class TokenService {
     const signedPayload = this.jwtService.sign(payload, { expiresIn: expires });
     const token = {
       accessToken: signedPayload,
-      expiresIn: expires
     };
     return token;
   }
-  async createRefreshToken(tokenContent: { userId: string; ipAddress: string; }): Promise<String> {
-    const { userId, ipAddress } = tokenContent;
+  async createRefreshToken(userId: string, ipAddress: string): Promise<String> {
     const refreshToken = randomBytes(64).toString('hex');
     const parseExpire = this.parseExpireIns(this.refreshTokenExpiresIn);
     const createRefreshToken = await this.tokenModel.create({
@@ -112,17 +104,31 @@ export class TokenService {
   }
 
   private async isBlackListed(id: string, expire: number): Promise<boolean> {
-    return this.usersExpired[id] && expire < this.usersExpired[id];
+    return this.usersExpiredList[id] && expire < this.usersExpiredList[id];
   }
   private async revokeTokenForUser(userId: string): Promise<any> {
     const parseExpire = this.parseExpireIns(this.accessTokenExpiresIn);
-    this.usersExpired[userId] = dayjs().add(parseExpire.expireInsNum, parseExpire.expireInsUnit as OpUnitType).unix();
+    this.usersExpiredList[userId] = dayjs().add(parseExpire.expireInsNum, parseExpire.expireInsUnit as OpUnitType).unix();
   }
 
   parseExpireIns(expireIns: string) {
     return {
       expireInsNum: Number(expireIns[0]),
       expireInsUnit: String(expireIns[1])
+    }
+  } 
+  getMaxage(): number {
+    const {expireInsNum, expireInsUnit} = this.parseExpireIns(this.refreshTokenExpiresIn);
+    switch (expireInsUnit.toLocaleLowerCase()) {
+      case 'd':
+        return expireInsNum * 60 * 60 * 24;
+      case 'h':
+        return expireInsNum * 60 * 60;
+      case 'm':
+        return expireInsNum * 60;
+      case 's':
+      default:
+        return expireInsNum;
     }
   }
 }
