@@ -19,15 +19,15 @@ export class TokenService {
     private readonly jwtService: JwtService,
     private configService: ConfigService
   ) {
-    this.refreshTokenExpiresIn = this.configService.get<string>('jwt_expire');
-    this.accessTokenExpiresIn = this.configService.get<string>('refresh_expire');
+    this.accessTokenExpiresIn = this.configService.get<string>('jwt_expire');
+    this.refreshTokenExpiresIn = this.configService.get<string>('refresh_expire');
   }
 
   async findOne(query): Promise<TokenDocument> {
     const res = await this.tokenModel.findOne(query);
     return res || null;
   }
-  async getAccessTokenFromRefreshToken(refreshToken: string) {
+  async getAccessTokenFromRefreshToken(refreshToken: string, userIp: string) {
     try {
       const token = await this.findOne({ value: refreshToken });
       if (!token) {
@@ -41,9 +41,9 @@ export class TokenService {
         sub: token.userId.toString()
       };
       const accessToken = await this.createAccessToken(payload);
-      // await this.tokenModel.findOneAndDelete(token.id).exec();
-      // const refresh = await this.createRefreshToken(payload.sub, ipAddress);
-      return {token: accessToken};
+      await this.tokenModel.findOneAndDelete(token.id).exec();
+      const refresh = await this.createRefreshToken(payload.sub, userIp);
+      return {token: accessToken, refreshToken: refresh};
     } catch (error) {
       throw error;
     }
@@ -112,23 +112,24 @@ export class TokenService {
   }
 
   parseExpireIns(expireIns: string) {
+    const num = expireIns.match(/\d+/g);
+    const letter =  expireIns.match(/[a-zA-Z]+/g);
     return {
-      expireInsNum: Number(expireIns[0]),
-      expireInsUnit: String(expireIns[1])
+      expireInsNum: Number(num),
+      expireInsUnit: String(letter)
     }
   } 
   getMaxage(): number {
     const {expireInsNum, expireInsUnit} = this.parseExpireIns(this.refreshTokenExpiresIn);
     switch (expireInsUnit.toLocaleLowerCase()) {
       case 'd':
-        return expireInsNum * 60 * 60 * 24;
+        return expireInsNum * 60 * 60 * 24 * 1000;
       case 'h':
-        return expireInsNum * 60 * 60;
+        return expireInsNum * 60 * 60 * 1000;
       case 'm':
-        return expireInsNum * 60;
+        return expireInsNum * 60 * 1000;
       case 's':
-      default:
-        return expireInsNum;
+        return expireInsNum * 1000;
     }
   }
 }

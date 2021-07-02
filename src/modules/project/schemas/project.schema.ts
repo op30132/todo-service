@@ -3,10 +3,11 @@ import { Types } from 'mongoose';
 import { User } from 'src/modules/user/schemas/user.schema';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
+import schemaOptions from 'src/shared/schema-option';
 
 export type ProjectDocument = Project & Document;
 
-@Schema()
+@Schema(schemaOptions)
 export class Project {
   @Prop()
   name: string;
@@ -20,6 +21,5 @@ export class Project {
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;
 }
-
-export const ProjectSchema = SchemaFactory.createForClass(Project);
-
+const ProjectSchema = SchemaFactory.createForClass(Project);
+export {ProjectSchema};

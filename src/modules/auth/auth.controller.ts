@@ -1,5 +1,5 @@
 import { Body, Controller, Post, Get, UseGuards, Req, Delete, Res, UseFilters, Ip, UnauthorizedException, Query, InternalServerErrorException, BadRequestException } from '@nestjs/common';
-import { LoginDTO, RegisterDTO } from './dto/auth.dto';
+import { RegisterDTO } from './dto/auth.dto';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 import { Public } from 'src/decorators/auth.decorator';
@@ -10,8 +10,6 @@ import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { Response, Request } from 'express';
 import { GlobalExceptionFilter } from 'src/filters/global-exception.filter';
 import { TokenService } from './token/token.service';
-import { ExtractJwt } from 'passport-jwt';
-import { of } from 'rxjs';
 
 @Controller('api/auth')
 @UseFilters(GlobalExceptionFilter)
@@ -33,11 +31,12 @@ export class AuthController {
   }
   @Public()
   @Get('token/refresh')
-  async token(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async token(@Req() req: Request, @Res({ passthrough: true }) res: Response, @Ip() userIp: string) {
     try {
       const refreshToken = req.cookies[this.REFRESH_TOKEN_KEY];
       if(!refreshToken) return new UnauthorizedException('no refreshToken');
-      const result = await this.tokenService.getAccessTokenFromRefreshToken(refreshToken);
+      const result = await this.tokenService.getAccessTokenFromRefreshToken(refreshToken, userIp);
+     this.setRefreshTokenCookie(res, result.refreshToken);
       return result.token;
     } catch (error) {
       throw new InternalServerErrorException('invalid');
@@ -66,9 +65,9 @@ export class AuthController {
     return res;
   }
 
-  @Get('users')
-  async findAll(): Promise<any[]> {
-    return await this.userService.findAll();
+  @Get('userProfile')
+  async getUserPtofile(@User() user: UserDocument): Promise<UserDocument> {
+    return await this.userService.findById(user.id);
   }
 
   @Delete('token/logout')

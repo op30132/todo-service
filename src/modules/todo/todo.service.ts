@@ -16,9 +16,9 @@ export class TodoService {
     return await this.todoModel.findById(todoId).exec();
   }
   async addTodo(userId: string, todo: TodoDTO) {
-    const project = await this.listService.getListById(todo.listId);
-    if (!project) {
-      throw new HttpException('No such project', HttpStatus.BAD_REQUEST);
+    const list = await this.listService.getListById(todo.listId);
+    if (!list) {
+      throw new HttpException('No such list', HttpStatus.BAD_REQUEST);
     }
     const createTodo = await this.todoModel.create({ ...todo, creator: userId, list: todo.listId });
     return createTodo.save();

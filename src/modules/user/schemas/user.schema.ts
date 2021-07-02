@@ -4,24 +4,25 @@ import * as mongoose from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { isEmail } from 'class-validator';
+import schemaOptions from 'src/shared/schema-option';
 
 export type UserDocument = User & Document;
 
-@Schema()
+@Schema(schemaOptions)
 export class User {
-  @Prop({ required: true, unique: true})
+  @Prop({ required: true, unique: true, allowNull: false })
   email: string;
 
-  @Prop({ select: false, required: true })
+  @Prop({ select: false, required: true, allowNull: false })
   password: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, allowNull: false })
   username: string;
 
-  @Prop({ type: Date, default: Date.now })
+  @Prop({ type: Date, default: Date.now, allowNull: false })
   createdAt: Date;
 
-  @Prop()
+  @Prop({ type: String, allowNull: false })
   googleId: string;
 }
 

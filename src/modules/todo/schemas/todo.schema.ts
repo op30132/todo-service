@@ -3,10 +3,11 @@ import { Types } from 'mongoose';
 import { User } from 'src/modules/user/schemas/user.schema';
 import { Document } from 'mongoose';
 import { List } from 'src/modules/list/schemas/list.schema';
+import schemaOptions from 'src/shared/schema-option';
 
 export type TodoDocument = Todo & Document;
 
-@Schema()
+@Schema(schemaOptions)
 export class Todo {
   @Prop()
   title: string;
@@ -17,8 +18,11 @@ export class Todo {
   @Prop()
   dueDate: Date;
 
-  @Prop()
-  important: Boolean;
+  @Prop({type: Boolean, default: false})
+  isImportant: Boolean;
+
+  @Prop({type: Boolean, default: false})
+  isComplete: Boolean;
 
   @Prop({ type: Types.ObjectId, ref: List.name })
   list: String;

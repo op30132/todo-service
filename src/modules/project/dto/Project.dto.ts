@@ -1,11 +1,14 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class ProjectDTO {
+  @IsString()
+  @MaxLength(30)
   @IsNotEmpty({ message: 'name is required' })
-  name: string;
+  readonly name: string;
 }
 
 export class CoworkerDTO {
+  @IsString()
   @IsNotEmpty({ message: 'userId is required' })
-  userId: string;
+  readonly userId: string;
 }

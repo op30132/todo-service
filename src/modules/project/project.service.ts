@@ -13,7 +13,7 @@ export class ProjectService {
     private userService: UserService
   ) { }
   async getProjectById(ProjectId: string) {
-    const project = await this.ProjectModel.findById(ProjectId);
+    const project = await this.ProjectModel.findById(Types.ObjectId(ProjectId));
     if (!project) throw new NotFoundException(`EntryId ${ProjectId} does not exist!`);
     return project;
   }
@@ -24,21 +24,20 @@ export class ProjectService {
   }
   async addProject(userId: string, Project: ProjectDTO) {
     const createProject = await this.ProjectModel.create({ ...Project, owner: new Types.ObjectId(userId) });
-    createProject.save();
-    return createProject;
+    return createProject.toObject();
   }
   async updateProject(ProjectId: string, Project: ProjectDTO) {
-    return await this.ProjectModel.findByIdAndUpdate(ProjectId, Project);
+    return await this.ProjectModel.findByIdAndUpdate(Types.ObjectId(ProjectId), Project);
   }
   async deleteProject(ProjectId: string): Promise<any> {
-    return await this.ProjectModel.findByIdAndRemove(ProjectId);
+    return await this.ProjectModel.findByIdAndRemove(Types.ObjectId(ProjectId));
   }
-  async getProjectsByUser(userId: string) {
-    const project = await this.ProjectModel.find({ owner: Types.ObjectId(userId) }).exec();
+  async getProjectsByUser(userId: string): Promise<Project[]> {
+    const project = await this.ProjectModel.find({ owner: Types.ObjectId(userId)});
     return project || [];
   }
   async getCoworkProjectsByUser(userId: string) {
-    const project = await this.ProjectModel.find({ coworker: Types.ObjectId(userId)}).exec();
+    const project = await this.ProjectModel.find({ coworker: Types.ObjectId(userId)});
     return project || [];
   }
   async getCoworkerList(ProjectId: string) {

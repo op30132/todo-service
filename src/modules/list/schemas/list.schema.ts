@@ -3,10 +3,11 @@ import { Types } from 'mongoose';
 import { Project } from 'src/modules/project/schemas/project.schema';
 import { User } from 'src/modules/user/schemas/user.schema';
 import { Document } from 'mongoose';
+import schemaOptions from 'src/shared/schema-option';
 
 export type ListDocument = List & Document;
 
-@Schema()
+@Schema(schemaOptions)
 export class List {
   @Prop()
   title: string;
