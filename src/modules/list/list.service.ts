@@ -20,7 +20,7 @@ export class ListService {
     if (!project) {
       throw new HttpException('No such project', HttpStatus.BAD_REQUEST);
     }
-    const createlist = await this.listModel.create({ ...list, creator: userId, project: list.projectId });
+    const createlist = await this.listModel.create({ ...list, creator: userId });
     return createlist.save();
   }
   async updateList(listId: string, list: ListDTO) {
@@ -30,7 +30,7 @@ export class ListService {
     return await this.listModel.findByIdAndRemove(listId);
   }
   async getAllListByProject(projectId: string) {
-    const res = await this.listModel.find({ project: projectId });
+    const res = await this.listModel.find({ projectId }).sort({ pos: 1 });
     return res || [];
   }
 }

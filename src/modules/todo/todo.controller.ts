@@ -14,7 +14,7 @@ import { User } from 'src/decorators/user.decorator';
 import { GlobalExceptionFilter } from 'src/filters/global-exception.filter';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserDocument } from '../user/schemas/user.schema';
-import { TodoDTO } from './dto/todo.dto';
+import { TodoDTO, TodoUpdateDTO } from './dto/todo.dto';
 import { TodoService } from './todo.service';
 
 
@@ -47,8 +47,8 @@ export class TodoController {
   }
 
   @Put('/:todoId')
-  async updateTodo(@Param('todoId') todoId, @Body() createDTO: TodoDTO) {
-    const res = await this.todoService.updateTodo(todoId, createDTO);
+  async updateTodo(@Param('todoId') todoId, @Body() updateDTO: TodoUpdateDTO) {
+    const res = await this.todoService.updateTodo(todoId, updateDTO);
     if (!res) throw new NotFoundException(`EntryId ${todoId} does not exist!`);
     return res;
   }

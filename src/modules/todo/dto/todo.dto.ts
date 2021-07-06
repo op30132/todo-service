@@ -14,4 +14,16 @@ export class TodoDTO {
   isImportant: Boolean;
 
   isComplete: Boolean;
+
+  pos: number;
+}
+
+export class TodoUpdateDTO {
+  title: string;
+  content: string;
+  listId: string;
+  dueDate: Date;
+  isImportant: Boolean;
+  isComplete: Boolean;
+  pos: number;
 }

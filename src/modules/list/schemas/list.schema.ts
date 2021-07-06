@@ -9,17 +9,20 @@ export type ListDocument = List & Document;
 
 @Schema(schemaOptions)
 export class List {
-  @Prop()
+  @Prop({ type: String })
   title: string;
 
   @Prop({ type: Types.ObjectId, ref: Project.name })
-  project: String;
+  projectId: String;
 
   @Prop({ type: Types.ObjectId, ref: User.name })
   creator: String;
 
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;
+
+  @Prop({ type: Number })
+  pos: number;
 }
 
 export const ListSchema = SchemaFactory.createForClass(List);

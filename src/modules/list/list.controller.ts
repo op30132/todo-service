@@ -14,7 +14,7 @@ import { User } from 'src/decorators/user.decorator';
 import { GlobalExceptionFilter } from 'src/filters/global-exception.filter';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserDocument } from '../user/schemas/user.schema';
-import { ListDTO } from './dto/List.dto';
+import { ListDTO, ListUpdateDTO } from './dto/List.dto';
 import { ListService } from './list.service';
 
 
@@ -47,8 +47,8 @@ export class ListController {
   }
 
   @Put('/:listId')
-  async updateTodo(@Param('listId') listId, @Body() createDTO: ListDTO) {
-    const res = await this.listService.updateList(listId, createDTO);
+  async updateTodo(@Param('listId') listId, @Body() updateDto: ListUpdateDTO) {
+    const res = await this.listService.updateList(listId, updateDto);
     if (!res) throw new NotFoundException(`EntryId ${listId} does not exist!`);
     return res;
   }

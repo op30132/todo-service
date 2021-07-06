@@ -6,4 +6,12 @@ export class ListDTO {
 
   @IsNotEmpty({ message: 'projectId 不可為空值' })
   projectId: string;
+
+  pos: number;
+}
+
+export class ListUpdateDTO {
+  title: string;
+  projectId: string;
+  pos: number;
 }

@@ -20,7 +20,7 @@ export class TodoService {
     if (!list) {
       throw new HttpException('No such list', HttpStatus.BAD_REQUEST);
     }
-    const createTodo = await this.todoModel.create({ ...todo, creator: userId, list: todo.listId });
+    const createTodo = await this.todoModel.create({ ...todo, creator: userId });
     return createTodo.save();
   }
   async updateTodo(todoId: string, todo: TodoDTO) {
@@ -30,7 +30,7 @@ export class TodoService {
     return await this.todoModel.findByIdAndRemove(todoId);
   }
   async getAllTodoByList(listId: string) {
-    const res = await this.todoModel.find({ list: listId });
+    const res = await this.todoModel.find({ listId }).sort({ pos: 1 });
     return res || [];
   }
 }

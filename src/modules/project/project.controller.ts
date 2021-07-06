@@ -21,8 +21,12 @@ export class ProjectController {
   }
 
   @Get('/myProjects')
-  async findAllByUserId(@User() user: UserDocument) {
-    const res = await this.projectService.getProjectsByUser(user.id);
+  async findAllByUserId(@User() { id }: UserDocument) {
+    const res = await this.projectService.getProjectsByUser(id);
+    if (res.length === 0) {
+      const newProject = await this.projectService.addProject(id, { name: "my project" })
+      return [newProject];
+    }
     return res;
   }
   @Get('/coworkerProjects')

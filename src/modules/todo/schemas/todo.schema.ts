@@ -9,7 +9,7 @@ export type TodoDocument = Todo & Document;
 
 @Schema(schemaOptions)
 export class Todo {
-  @Prop()
+  @Prop({ type: String, trim: true })
   title: string;
 
   @Prop()
@@ -18,20 +18,23 @@ export class Todo {
   @Prop()
   dueDate: Date;
 
-  @Prop({type: Boolean, default: false})
+  @Prop({ type: Boolean, default: false })
   isImportant: Boolean;
 
-  @Prop({type: Boolean, default: false})
+  @Prop({ type: Boolean, default: false })
   isComplete: Boolean;
 
   @Prop({ type: Types.ObjectId, ref: List.name })
-  list: String;
+  listId: String;
 
   @Prop({ type: Types.ObjectId, ref: User.name })
   creator: String;
 
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;
+
+  @Prop({ type: Number })
+  pos: number;
 }
 
 export const TodoSchema = SchemaFactory.createForClass(Todo);
