@@ -11,7 +11,7 @@ export class ListDTO {
 }
 
 export class ListUpdateDTO {
-  title: string;
-  projectId: string;
-  pos: number;
+  title?: string;
+  projectId?: string;
+  pos?: number;
 }

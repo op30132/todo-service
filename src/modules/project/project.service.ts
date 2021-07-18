@@ -27,17 +27,17 @@ export class ProjectService {
     return createProject.toObject();
   }
   async updateProject(ProjectId: string, Project: ProjectDTO) {
-    return await this.ProjectModel.findByIdAndUpdate(Types.ObjectId(ProjectId), Project);
+    return await this.ProjectModel.findByIdAndUpdate(Types.ObjectId(ProjectId), Project, {new: true});
   }
   async deleteProject(ProjectId: string): Promise<any> {
     return await this.ProjectModel.findByIdAndRemove(Types.ObjectId(ProjectId));
   }
   async getProjectsByUser(userId: string): Promise<Project[]> {
-    const project = await this.ProjectModel.find({ owner: Types.ObjectId(userId)});
+    const project = await this.ProjectModel.find({ owner: Types.ObjectId(userId)}).populate('coworker');
     return project || [];
   }
   async getCoworkProjectsByUser(userId: string) {
-    const project = await this.ProjectModel.find({ coworker: Types.ObjectId(userId)});
+    const project = await this.ProjectModel.find({ coworker: Types.ObjectId(userId)}).populate('coworker');
     return project || [];
   }
   async getCoworkerList(ProjectId: string) {

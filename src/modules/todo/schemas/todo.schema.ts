@@ -25,10 +25,10 @@ export class Todo {
   isComplete: Boolean;
 
   @Prop({ type: Types.ObjectId, ref: List.name })
-  listId: String;
+  listId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: User.name })
-  creator: String;
+  creator: Types.ObjectId;
 
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;

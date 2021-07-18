@@ -70,4 +70,9 @@ export class ProjectController {
     const res = await this.projectService.removeCoworker(projectId, userId);
     return res;
   }
+  @Post('/:projectId/coworker/:userId')
+  async inviteCoworker(@Param('projectId') projectId, @Param('userId') userId) {
+    const res = await this.projectService.removeCoworker(projectId, userId);
+    return res;
+  }
 }

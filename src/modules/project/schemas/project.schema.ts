@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { User } from 'src/modules/user/schemas/user.schema';
 import { Document } from 'mongoose';
-import * as mongoose from 'mongoose';
 import schemaOptions from 'src/shared/schema-option';
 
 export type ProjectDocument = Project & Document;
@@ -15,11 +14,14 @@ export class Project {
   @Prop({ type: Types.ObjectId, ref: User.name })
   owner: Types.ObjectId;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: User.name }]})
+  @Prop({ type: [{ type: Types.ObjectId, ref: User.name }], select: false })
   coworker: Types.ObjectId[];
 
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: User.name }]})
+  invitingUser: Types.ObjectId[];
 }
 const ProjectSchema = SchemaFactory.createForClass(Project);
 export {ProjectSchema};

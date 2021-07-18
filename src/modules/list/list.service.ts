@@ -1,6 +1,6 @@
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ListDTO } from './dto/List.dto';
+import { ListDTO, ListUpdateDTO } from './dto/List.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { ProjectService } from '../project/project.service';
 import { List, ListDocument } from './schemas/list.schema';
@@ -20,17 +20,23 @@ export class ListService {
     if (!project) {
       throw new HttpException('No such project', HttpStatus.BAD_REQUEST);
     }
-    const createlist = await this.listModel.create({ ...list, creator: userId });
+    const data = {
+      ...list,
+      creator: Types.ObjectId(userId), 
+      projectId: Types.ObjectId(list.projectId)
+    }
+    const createlist = await this.listModel.create(data);
     return createlist.save();
   }
-  async updateList(listId: string, list: ListDTO) {
-    return await this.listModel.findByIdAndUpdate(listId, list, { new: true });
+  async updateList(listId: string, list: ListUpdateDTO) {
+    const data = list.projectId ? {...list, projectId: Types.ObjectId(list.projectId)} : list;
+    return await this.listModel.findByIdAndUpdate(listId, data, { new: true });
   }
   async deleteList(listId: string): Promise<any> {
     return await this.listModel.findByIdAndRemove(listId);
   }
   async getAllListByProject(projectId: string) {
-    const res = await this.listModel.find({ projectId }).sort({ pos: 1 });
+    const res = this.listModel.find({projectId: Types.ObjectId(projectId)}).sort({pos: 1}).populate('todos');
     return res || [];
   }
 }

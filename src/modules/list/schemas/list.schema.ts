@@ -5,18 +5,20 @@ import { User } from 'src/modules/user/schemas/user.schema';
 import { Document } from 'mongoose';
 import schemaOptions from 'src/shared/schema-option';
 
+
 export type ListDocument = List & Document;
 
 @Schema(schemaOptions)
 export class List {
   @Prop({ type: String })
   title: string;
+  
 
   @Prop({ type: Types.ObjectId, ref: Project.name })
-  projectId: String;
+  projectId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: User.name })
-  creator: String;
+  creator: Types.ObjectId;
 
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;
@@ -25,4 +27,13 @@ export class List {
   pos: number;
 }
 
-export const ListSchema = SchemaFactory.createForClass(List);
+let ListSchema = SchemaFactory.createForClass(List);
+
+ListSchema.virtual('todos', {
+  ref: 'Todo',
+  localField: '_id',
+  foreignField: 'listId', 
+  justOne: false,
+  options: { sort: { pos: 1 }}
+});
+export {ListSchema};
