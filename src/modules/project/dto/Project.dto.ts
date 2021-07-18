@@ -12,3 +12,8 @@ export class CoworkerDTO {
   @IsNotEmpty({ message: 'userId is required' })
   readonly userId: string;
 }
+
+export class InviteCoworkerDTO {
+  @IsNotEmpty({ message: 'userId is required' })
+  readonly userId: string;
+}

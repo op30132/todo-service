@@ -8,6 +8,7 @@ import { ProjectModule } from './modules/project/project.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { ListModule } from './modules/list/list.module';
+import { SocketModule } from './modules/socket/socket.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ListModule } from './modules/list/list.module';
     TodoModule,
     ListModule,
     ProjectModule,
+    SocketModule
   ],
   controllers: [],
   providers: [

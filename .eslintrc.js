@@ -20,5 +20,9 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'on',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    "quotes": ["error", "double"],
+    "semi": ["error", "always"],
+    "indent": ["error", 2],
+    "react/prop-types": ["off"]
   },
 };

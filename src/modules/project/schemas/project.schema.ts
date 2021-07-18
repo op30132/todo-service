@@ -14,7 +14,7 @@ export class Project {
   @Prop({ type: Types.ObjectId, ref: User.name })
   owner: Types.ObjectId;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: User.name }], select: false })
+  @Prop({ type: [{ type: Types.ObjectId, ref: User.name }]})
   coworker: Types.ObjectId[];
 
   @Prop({ type: Date, default: Date.now })
@@ -23,5 +23,4 @@ export class Project {
   @Prop({ type: [{ type: Types.ObjectId, ref: User.name }]})
   invitingUser: Types.ObjectId[];
 }
-const ProjectSchema = SchemaFactory.createForClass(Project);
-export {ProjectSchema};
+export const ProjectSchema = SchemaFactory.createForClass(Project);

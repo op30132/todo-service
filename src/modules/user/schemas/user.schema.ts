@@ -3,7 +3,6 @@ import * as mongoose from 'mongoose';
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { isEmail } from 'class-validator';
 import schemaOptions from 'src/shared/schema-option';
 
 export type UserDocument = User & Document;

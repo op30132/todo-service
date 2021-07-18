@@ -3,7 +3,7 @@ import { User } from 'src/decorators/user.decorator';
 import { GlobalExceptionFilter } from 'src/filters/global-exception.filter';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserDocument } from '../user/schemas/user.schema';
-import { CoworkerDTO, ProjectDTO } from './dto/Project.dto';
+import { CoworkerDTO, InviteCoworkerDTO, ProjectDTO } from './dto/Project.dto';
 import { ProjectService } from './project.service';
 
 @Controller('api/project')
@@ -34,7 +34,11 @@ export class ProjectController {
     const res = await this.projectService.getCoworkProjectsByUser(user.id);
     return res;
   }
-
+  @Get('/invitedProjects')
+  async findInvitedProjectByUser(@User() user: UserDocument) {
+    const res = await this.projectService.getInvitedProjectByUser(user.id);
+    return res
+  }
   @Get('/:projectId')
   async findOne(@Param('projectId') projectId) {
     const res = await this.projectService.getProject(projectId);
@@ -57,22 +61,27 @@ export class ProjectController {
 
   @Get('/:projectId/coworkers')
   async getCoworkerList(@Param('projectId') projectId) {
-    const res = await this.projectService.getCoworkerList(projectId);
-    return res;
+    return await this.projectService.getCoworkerList(projectId);
   }
   @Post('/:projectId/coworker')
   async createCoworker(@Param('projectId') projectId, @Body() createDTO: CoworkerDTO) {
-    const res = await this.projectService.addCoworker(projectId, createDTO.userId);
-    return res;
+    return await this.projectService.addCoworker(projectId, createDTO.userId);
   }
   @Delete('/:projectId/coworker/:userId')
   async removeCoworker(@Param('projectId') projectId, @Param('userId') userId) {
-    const res = await this.projectService.removeCoworker(projectId, userId);
-    return res;
+    return await this.projectService.removeCoworker(projectId, userId);
   }
-  @Post('/:projectId/coworker/:userId')
-  async inviteCoworker(@Param('projectId') projectId, @Param('userId') userId) {
-    const res = await this.projectService.removeCoworker(projectId, userId);
-    return res;
+  @Post('/:projectId/coworker/invite')
+  async inviteCoworker(@Param('projectId') projectId, @Body() data: InviteCoworkerDTO) {
+
+    return await this.projectService.addInvitedUser(projectId, data.userId);
+  }
+  @Post('/:projectId/coworker/join')
+  async joinCoworker(@Param('projectId') projectId, @User() user: UserDocument) {
+    return await this.projectService.joinCoworker(projectId, user.id);
+  }
+  @Post('/:projectId/coworker/reject')
+  async removeinvited(@Param('projectId') projectId, @User() user: UserDocument) {
+    return await this.projectService.removeInvitedUser(projectId, user.id);
   }
 }

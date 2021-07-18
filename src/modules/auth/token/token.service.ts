@@ -7,6 +7,9 @@ import { Token, TokenDocument } from '../schemas/token.schema';
 import { randomBytes } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { SysResponseMsg } from 'src/shared/sys-response-msg';
+import { Socket } from 'socket.io';
+import { WsException } from '@nestjs/websockets';
+
 @Injectable()
 export class TokenService {
   // TODO: redis cache
@@ -110,7 +113,6 @@ export class TokenService {
     const parseExpire = this.parseExpireIns(this.accessTokenExpiresIn);
     this.usersExpiredList[userId] = dayjs().add(parseExpire.expireInsNum, parseExpire.expireInsUnit as OpUnitType).unix();
   }
-
   parseExpireIns(expireIns: string) {
     const num = expireIns.match(/\d+/g);
     const letter =  expireIns.match(/[a-zA-Z]+/g);
