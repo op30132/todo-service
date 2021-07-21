@@ -10,16 +10,21 @@ import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { Response, Request } from 'express';
 import { GlobalExceptionFilter } from 'src/filters/global-exception.filter';
 import { TokenService } from './token/token.service';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('api/auth')
 @UseFilters(GlobalExceptionFilter)
 export class AuthController {
   REFRESH_TOKEN_KEY = "refreshToken";
+  frontEndUrl = "127.0.0.1:3000";
   constructor(
     private authService: AuthService,
     private userService: UserService,
-    private tokenService: TokenService
-  ) { }
+    private tokenService: TokenService,
+    private configService: ConfigService
+    ) {
+      this.frontEndUrl = this.configService.get<string>('front_end_url');
+    }
 
   @Public()
   @UseGuards(LocalAuthGuard)
@@ -54,7 +59,7 @@ export class AuthController {
   async googleAuthRedirect(@User() user: UserDocument, @Ip() userIp: string, @Res({ passthrough: true }) res: Response) {
     const result = await this.authService.signInWithGoogle(user, userIp);
     this.setRefreshTokenCookie(res, result.refreshToken);
-    res.redirect("http://localhost:3000/home");
+    res.redirect(this.frontEndUrl+'/home');
   }
 
   @Public()

@@ -12,7 +12,7 @@ export class User {
   @Prop({ required: true, unique: true, allowNull: false })
   email: string;
 
-  @Prop({ select: false, required: true, allowNull: false })
+  @Prop({ select: false, allowNull: true })
   password: string;
 
   @Prop({ required: true, allowNull: false })
